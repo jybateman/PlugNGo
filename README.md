@@ -1,0 +1,2 @@
+# PlugNGo
+AwoX SmartPLUG controller
