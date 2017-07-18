@@ -1,6 +1,8 @@
 package main
 
-import (	
+import (
+	"fmt"
+	
 	"github.com/paypal/gatt"
 )
 
@@ -17,4 +19,5 @@ type Plug struct {
 }
 
 func (pl *Plug) On() {
+	b := CreateMessage([]byte{0x03, 0x00, 0x01, 0x00, 0x00})
 }
