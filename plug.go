@@ -19,6 +19,10 @@ type Plug struct {
 	notifChan chan []byte
 }
 
+func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) {
+	log.Println("Receive notification:", b)
+}
+
 func (pl *Plug) SendMessage(b []byte) {
 	for i := 0; i < len(b); i += 20 {
 		end := i + 20
@@ -35,4 +39,13 @@ func (pl *Plug) SendMessage(b []byte) {
 func (pl *Plug) On() {
 	b := CreateMessage([]byte{0x03, 0x00, 0x01, 0x00, 0x00})
 	pl.SendMessage(b)
+}
+
+func (pl *Plug) Off() {
+	b := CreateMessage([]byte{0x03, 0x00, 0x00, 0x00, 0x00})
+	pl.SendMessage(b)
+}
+
+func (pl *Plug) Handler() {
+	select{}
 }

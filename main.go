@@ -65,10 +65,10 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					if err != nil {
 						log.Println(err)
 					}
-					f := func(c *gatt.Characteristic, b []byte, err error) {
-						fmt.Printf("notified: % X | %q\n", b, b)
-					}
-					if err := p.SetNotifyValue(c, f); err != nil {
+					// f := func(c *gatt.Characteristic, b []byte, err error) {
+					// 	fmt.Printf("notified: % X | %q\n", b, b)
+					// }
+					if err := p.SetNotifyValue(c, tmpPlug.handleNotification); err != nil {
 						log.Println("ERROR:", err)
 					}
 					tmpPlug.notif = c
@@ -87,6 +87,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 				}
 			}
 			plugs[p.ID()] = tmpPlug
+			tmpPlug.On()
 			break
 		}
 	}
