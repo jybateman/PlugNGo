@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"encoding/hex"
 	
 	"github.com/paypal/gatt"
 )
@@ -20,7 +21,7 @@ type Plug struct {
 }
 
 func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) {
-	log.Println("Receive notification:", b)
+	log.Println("Receive notification:", hex.EncodeToString(b))
 }
 
 func (pl *Plug) SendMessage(b []byte) {
