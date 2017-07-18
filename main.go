@@ -14,6 +14,7 @@ var cmdUUID = gatt.MustParseUUID("fff3")
 var notifUUID = gatt.MustParseUUID("fff4")
 var nameUUID = gatt.MustParseUUID("fff6")
 
+var plugs map[string]Plug
 
 var DefaultClientOptions = []gatt.Option{
 	gatt.LnxDeviceID(-1, true),
@@ -57,7 +58,10 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			log.Printf("Service Found %s\n", service.Name())
 
 			cs, _ := p.DiscoverCharacteristics(nil, service)
-
+			
+			var tmpPlug Plug
+			
+			tmpPlug.per = p
 			for _, c := range cs {
 				
 				if (c.UUID().Equal(notifUUID)) {
@@ -72,12 +76,13 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					if err := p.SetNotifyValue(c, f); err != nil {
 						fmt.Printf("Failed to subscribe characteristic, err: %s\n", err)
 					}
-					fmt.Println("DESCP END")
+					tmpPlug.notif = c
 				}
 				
 				if (c.UUID().Equal(cmdUUID)) {
 					cmd = c
 					log.Println("Command Characteristic Found")
+					tmpPlug.cmd = cmd
 
 				}
 				if (c.UUID().Equal(nameUUID)) {
@@ -85,8 +90,11 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					log.Println("Name Characteristic Found")
 					b, _ := p.ReadCharacteristic(c)
 					log.Printf("Name: %q\n", b)
+					tmpPlug.name = name
 				}
 			}
+			plugs[p.ID()] = tmpPlug
+			break
 		}
 	}
 
@@ -118,6 +126,14 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 }
 
 func main() {
+	plugs = make(map[string]Plug)
+	hexMes, _ := hex.DecodeString("0300010000")
+	m := hex.EncodeToString(CreateMessage(hexMes))
+	fmt.Println("COMPARE MESSAGES:", m, "0f06030001000005ffff")
+	fmt.Println("COMPARE LENGTH:", len(m), len("0f06030001000005ffff"))
+	fmt.Println("IS EQUAL:", m == "0f06030001000005ffff")
+
+	return
 	d, err := gatt.NewDevice(DefaultClientOptions...)
 	if err != nil {
 		log.Fatalf("Failed to open device, err: %s\n", err)
