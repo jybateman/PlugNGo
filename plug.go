@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	
 	"github.com/paypal/gatt"
 )
@@ -16,6 +16,7 @@ type Plug struct {
 	cmd *gatt.Characteristic
 	name *gatt.Characteristic
 	notif *gatt.Characteristic
+	notifChan chan []byte
 }
 
 func (pl *Plug) SendMessage(b []byte) {
@@ -26,7 +27,7 @@ func (pl *Plug) SendMessage(b []byte) {
 		}
 		err := pl.per.WriteCharacteristic(pl.cmd, b[i:end], true)
 		if err != nil {
-			fmt.Println("ERROR:", err)
+			log.Println("ERROR:", err)
 		}
 	}
 }

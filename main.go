@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
-	"encoding/hex"
 	
 	"github.com/paypal/gatt"
 )
@@ -21,10 +19,10 @@ var DefaultClientOptions = []gatt.Option{
 }
 
 func onStateChanged(d gatt.Device, s gatt.State) {
-	fmt.Println("State:", s)
+	log.Println("State:", s)
 	switch s {
 	case gatt.StatePoweredOn:
-		fmt.Println("scanning...")
+		log.Println("scanning...")
 		d.Scan([]gatt.UUID{}, false)
 		return
 	default:
@@ -33,23 +31,20 @@ func onStateChanged(d gatt.Device, s gatt.State) {
 }
 
 func onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
-	fmt.Printf("\nPeripheral ID:%s, NAME:(%s)\n", p.ID(), p.Name())
-	fmt.Println("  Local Name        =", a.LocalName)
-	fmt.Println("  TX Power Level    =", a.TxPowerLevel)
-	fmt.Println("  Manufacturer Data =", a.ManufacturerData)
-	fmt.Println("  Service Data      =", a.ServiceData)
+	log.Printf("Peripheral ID:%s, NAME:(%s)\n", p.ID(), p.Name())
+	log.Println("  Local Name        =", a.LocalName)
+	log.Println("  TX Power Level    =", a.TxPowerLevel)
+	log.Println("  Manufacturer Data =", a.ManufacturerData)
+	log.Println("  Service Data      =", a.ServiceData)
 	p.Device().Connect(p)
 }
 
 func onPeriphConnected(p gatt.Peripheral, err error) {
-	var name *gatt.Characteristic
-	var cmd *gatt.Characteristic
-	
 	log.Printf("Peripheral connected\n")
 
 	services, err := p.DiscoverServices(nil)
 	if err != nil {
-		log.Printf("Failed to discover services, err: %s\n", err)
+		log.Println("ERROR:", err)
 		return
 	}
 	
@@ -65,59 +60,35 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			for _, c := range cs {
 				
 				if (c.UUID().Equal(notifUUID)) {
+					log.Println("Notif Characteristic Found")
 					_, err := p.DiscoverDescriptors(nil, c)
 					if err != nil {
-						fmt.Println(err)
+						log.Println(err)
 					}
-					fmt.Println(c.UUID())
 					f := func(c *gatt.Characteristic, b []byte, err error) {
 						fmt.Printf("notified: % X | %q\n", b, b)
 					}
 					if err := p.SetNotifyValue(c, f); err != nil {
-						fmt.Printf("Failed to subscribe characteristic, err: %s\n", err)
+						log.Println("ERROR:", err)
 					}
 					tmpPlug.notif = c
 				}
 				
 				if (c.UUID().Equal(cmdUUID)) {
-					cmd = c
 					log.Println("Command Characteristic Found")
-					tmpPlug.cmd = cmd
+					tmpPlug.cmd = c
 
 				}
 				if (c.UUID().Equal(nameUUID)) {
-					name = c
 					log.Println("Name Characteristic Found")
 					b, _ := p.ReadCharacteristic(c)
 					log.Printf("Name: %q\n", b)
-					tmpPlug.name = name
+					tmpPlug.name = c
 				}
 			}
 			plugs[p.ID()] = tmpPlug
 			break
 		}
-	}
-
-	for {
-		time.Sleep(time.Second * 5)
-
-		// STATUS
-		b, _ := hex.DecodeString("0f050400000005ffff")
-
-		// OFF
-		// b, _ := hex.DecodeString("0f06030000000004ffff")
-
-		// ON
-		// b, _ := hex.DecodeString("0f06030001000005ffff")
-
-		
-		err = p.WriteCharacteristic(cmd, b, true)
-		if err != nil {
-			fmt.Println("ERROR:", err)
-		}
-		_ = name
-		_ = cmd
-		return
 	}
 }
 
@@ -127,13 +98,12 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 
 func main() {
 	plugs = make(map[string]Plug)
-	hexMes, _ := hex.DecodeString("0300010000")
-	m := hex.EncodeToString(CreateMessage(hexMes))
-	fmt.Println("COMPARE MESSAGES:", m, "0f06030001000005ffff")
-	fmt.Println("COMPARE LENGTH:", len(m), len("0f06030001000005ffff"))
-	fmt.Println("IS EQUAL:", m == "0f06030001000005ffff")
-
-	return
+	// hexMes, _ := hex.DecodeString("0300010000")
+	// m := hex.EncodeToString(CreateMessage(hexMes))
+	// fmt.Println("COMPARE MESSAGES:", m, "0f06030001000005ffff")
+	// fmt.Println("COMPARE LENGTH:", len(m), len("0f06030001000005ffff"))
+	// fmt.Println("IS EQUAL:", m == "0f06030001000005ffff")
+	
 	d, err := gatt.NewDevice(DefaultClientOptions...)
 	if err != nil {
 		log.Fatalf("Failed to open device, err: %s\n", err)
