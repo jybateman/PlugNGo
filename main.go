@@ -12,7 +12,7 @@ var cmdUUID = gatt.MustParseUUID("fff3")
 var notifUUID = gatt.MustParseUUID("fff4")
 var nameUUID = gatt.MustParseUUID("fff6")
 
-var plugs map[string]Plug
+var plugs map[string]*Plug
 
 var DefaultClientOptions = []gatt.Option{
 	gatt.LnxDeviceID(-1, true),
@@ -87,8 +87,9 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 				}
 			}
 			tmpPlug.notifChan = make(chan []byte)
-			plugs[p.ID()] = tmpPlug
-			tmpPlug.On()
+			plugs[p.ID()] = &tmpPlug
+			go plugs[p.ID()].Handler()
+			plugs[p.ID()].On()
 			break
 		}
 	}
@@ -99,7 +100,7 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 }
 
 func main() {
-	plugs = make(map[string]Plug)
+	plugs = make(map[string]*Plug)
 	
 	d, err := gatt.NewDevice(DefaultClientOptions...)
 	if err != nil {

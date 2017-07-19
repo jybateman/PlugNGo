@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"bytes"
 	"encoding/hex"
 	
 	"github.com/paypal/gatt"
@@ -45,9 +46,34 @@ func (pl *Plug) Off() {
 
 func (pl *Plug) Handler() {
 	select {
-	// case data <- notifChan:
-		// switch {
-		// case data[0:3] == :
-		// }
+	case data := <- pl.notifChan:
+		switch {
+		case bytes.HasPrefix(data, TimeConfirm):
+			log.Println("Set Time Notification")
+			break
+		case bytes.HasPrefix(data, NameConfirm):
+			log.Println("Set Name Notification")
+			break
+		case bytes.HasPrefix(data, StateConfirm):
+			log.Println("State Change Notification")
+			break
+		case bytes.HasPrefix(data, StatePowerNotif):
+			log.Println("State and Power Notification")
+			break
+		case bytes.HasPrefix(data, PowerDayHistory):
+			log.Println("Power History for last 24h Notification")
+			break
+		case bytes.HasPrefix(data, PowerPerDay):
+			log.Println("Power history kWh/day Notification")
+			break
+		case bytes.HasPrefix(data, ScheduleNotif):
+			log.Println("Schedules Notification")
+			break
+		case bytes.HasPrefix(data, Notif):
+			log.Println("Notification")
+			break
+		default:
+			log.Println("Unknown Notification")
+		}
 	}
 }
