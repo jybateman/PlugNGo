@@ -4,6 +4,7 @@ import (
 	"log"
 	"bytes"
 	"encoding/hex"
+	"encoding/binary"
 	
 	"github.com/paypal/gatt"
 )
@@ -33,7 +34,7 @@ func (pl *Plug) SendMessage(b []byte) {
 		}
 	}
 }
-	
+
 func (pl *Plug) On() {
 	b := CreateMessage([]byte{0x03, 0x00, 0x01, 0x00, 0x00})
 	pl.SendMessage(b)
@@ -42,6 +43,21 @@ func (pl *Plug) On() {
 func (pl *Plug) Off() {
 	b := CreateMessage([]byte{0x03, 0x00, 0x00, 0x00, 0x00})
 	pl.SendMessage(b)
+}
+
+func (pl *Plug) Status() {
+	b := CreateMessage([]byte{0x04, 0x00, 0x00, 0x00, 0x00})
+	pl.SendMessage(b)
+}
+
+func (pl *Plug) HandleStatus(data []byte) {
+	if len(data) < 11 {
+		log.Println("ERROR: Couldn't retreive power usage")
+		return
+	}
+	power := binary.BigEndian.Uint32(data[6:])
+	voltage := data[10]
+	log.Println("power:", power, "Voltage:", voltage)
 }
 
 func (pl *Plug) Handler() {
@@ -59,6 +75,7 @@ func (pl *Plug) Handler() {
 			break
 		case bytes.HasPrefix(data, StatePowerNotif):
 			log.Println("State and Power Notification")
+			pl.HandleStatus(data)
 			break
 		case bytes.HasPrefix(data, PowerDayHistory):
 			log.Println("Power History for last 24h Notification")

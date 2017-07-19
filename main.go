@@ -72,14 +72,11 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 						log.Println("ERROR:", err)
 					}
 					tmpPlug.notif = c
-				}
-				
-				if (c.UUID().Equal(cmdUUID)) {
+				} else if (c.UUID().Equal(cmdUUID)) {
 					log.Println("Command Characteristic Found")
 					tmpPlug.cmd = c
 
-				}
-				if (c.UUID().Equal(nameUUID)) {
+				} else if (c.UUID().Equal(nameUUID)) {
 					log.Println("Name Characteristic Found")
 					b, _ := p.ReadCharacteristic(c)
 					log.Printf("Name: %q\n", b)
@@ -89,7 +86,8 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			tmpPlug.notifChan = make(chan []byte)
 			plugs[p.ID()] = &tmpPlug
 			go plugs[p.ID()].Handler()
-			plugs[p.ID()].On()
+			// plugs[p.ID()].On()
+			plugs[p.ID()].Status()
 			break
 		}
 	}
