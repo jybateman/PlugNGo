@@ -86,6 +86,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					tmpPlug.name = c
 				}
 			}
+			tmpPlug.notifChan = make(chan []byte)
 			plugs[p.ID()] = tmpPlug
 			tmpPlug.On()
 			break
@@ -99,11 +100,6 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 
 func main() {
 	plugs = make(map[string]Plug)
-	// hexMes, _ := hex.DecodeString("0300010000")
-	// m := hex.EncodeToString(CreateMessage(hexMes))
-	// fmt.Println("COMPARE MESSAGES:", m, "0f06030001000005ffff")
-	// fmt.Println("COMPARE LENGTH:", len(m), len("0f06030001000005ffff"))
-	// fmt.Println("IS EQUAL:", m == "0f06030001000005ffff")
 	
 	d, err := gatt.NewDevice(DefaultClientOptions...)
 	if err != nil {

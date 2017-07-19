@@ -7,11 +7,6 @@ import (
 	"github.com/paypal/gatt"
 )
 
-var (
-	StartMessage = []byte{0x0f}
-	EndMessage = []byte{0xff, 0xff}
-)
-
 type Plug struct {
 	per gatt.Peripheral
 	cmd *gatt.Characteristic
@@ -22,6 +17,7 @@ type Plug struct {
 
 func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) {
 	log.Println("Receive notification:", hex.EncodeToString(b))
+	pl.notifChan <- b
 }
 
 func (pl *Plug) SendMessage(b []byte) {
@@ -48,5 +44,10 @@ func (pl *Plug) Off() {
 }
 
 func (pl *Plug) Handler() {
-	select{}
+	select {
+	// case data <- notifChan:
+		// switch {
+		// case data[0:3] == :
+		// }
+	}
 }
