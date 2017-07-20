@@ -1,0 +1,9 @@
+{
+    "Port": "9000",
+    "Mysql": {
+	"Port": "3306",
+	"IP": "127.0.0.1",
+	"Username": "root",
+	"Password": "helloworld"
+    }
+}

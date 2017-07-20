@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	
 	"github.com/paypal/gatt"
 )
@@ -109,9 +110,13 @@ func main() {
 		// gatt.PeripheralDisconnected(onPeriphDisconnected),
 	)
 	d.Init(onStateChanged)
-
+	
 	// Handle http
+	http.HandleFunc("/", checkSession)
+	http.HandleFunc("/signin", signin)
+	
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
 	http.Handle("/fonts/", http.StripPrefix("/fonts/", http.FileServer(http.Dir("fonts"))))
+	http.ListenAndServe(":4243", nil)
 }
