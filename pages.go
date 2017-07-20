@@ -45,3 +45,17 @@ func signupPage(w http.ResponseWriter, r *http.Request, p *Page) {
 	}
 	tpl.Execute(w, p)
 }
+
+func homePage(w http.ResponseWriter, r *http.Request, p *Page) {
+	tpl, err := template.ParseFiles("html/home.html", "html/header.html")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
+	}
+	err = r.ParseForm()
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
+	}
+	tpl.Execute(w, p)
+}

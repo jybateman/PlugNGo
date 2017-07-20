@@ -32,7 +32,7 @@ func signin(w http.ResponseWriter, r *http.Request) {
 	pass := strings.TrimSpace(r.PostFormValue("password"))
 	if checkAccount(user, pass) {
 		addSession(w)
-		http.Redirect(w, r, "/servers", 302)
+		http.Redirect(w, r, "/home", 302)
 	}
 	p.Mess.Type = "Warning"
 	p.Mess.Message = "Wrong Username/Password"
@@ -46,7 +46,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	if isSession(r) {
 		http.Redirect(w, r, "/home", 302)
 	}
-	if !hasAdmin() {
+	if hasAdmin() {
 		p.Mess.Type = "Warning"
 		p.Mess.Message = "Admin account already exist"
 		p.Mess.Visible = ""
@@ -58,8 +58,16 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		signupPage(w, r, p)
 		return
 	}
-	user := strings.TrimSpace(r.PostFormValue("newusername"))
 	pass := strings.TrimSpace(r.PostFormValue("password"))
+	confpass := strings.TrimSpace(r.PostFormValue("confpassword"))
+	if strings.Compare(pass, confpass) != 0 {
+		p.Mess.Type = "Danger"
+		p.Mess.Message = "Password does not match the confirm password"
+		p.Mess.Visible = ""
+		signupPage(w, r, p)
+		return
+	}
+	user := strings.TrimSpace(r.PostFormValue("newusername"))
 	if err := addAdmin(user, pass); err == nil {
 		addSession(w)
 		http.Redirect(w, r, "/home", 302)
@@ -68,4 +76,18 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	p.Mess.Message = "Couldn't create account"
 	p.Mess.Visible = ""
 	signupPage(w, r, p)
+}
+
+func home(w http.ResponseWriter, r *http.Request) {
+	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil}
+	if !isSession(r) {
+		p.Mess.Type = "Warning"
+		p.Mess.Message = "Please signin using Admin account"
+		p.Mess.Visible = ""
+		signinPage(w, r, p)
+		return
+	}
+	p.Nav = true
+	p.Info = plugs
+	homePage(w, r, p)
 }

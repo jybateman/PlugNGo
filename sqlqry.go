@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
-
+	"io/ioutil"
+	"encoding/json"
+	
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -16,6 +18,18 @@ type sqlConf struct {
 
 var SQLConn sqlConf
 
+func initSQL() {
+	b, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
+	}
+	err = json.Unmarshal(b, &SQLConn)
+	if err != nil {
+		log.Println("ERROR:", err)
+	}
+}
+
 func checkAccount(user, pass string) bool {
 	var res int
 
@@ -26,7 +40,7 @@ func checkAccount(user, pass string) bool {
 		return false
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT COUNT(*) FROM admin WHERE username=? AND password=?",
+	rows, err := db.Query("SELECT COUNT(*) FROM admin WHERE user=? AND password=?",
 		user, pass)
 	if err != nil {
 		log.Println("ERROR:", err)
@@ -49,7 +63,7 @@ func addAdmin(user, pass string) error {
 		return err
 	}
 	defer db.Close()
-	_, err = db.Exec("INSERT INTO admin VALUE (?, ?)",
+	_, err = db.Exec("INSERT INTO admin (user, password) VALUE (?, ?)",
 		user, pass)
 	if err != nil {
 		log.Println("ERROR:", err)
@@ -77,7 +91,6 @@ func hasAdmin() bool {
 	rows.Next()
 	err = rows.Scan(&res)
 	if err != nil || res == 0 {
-		log.Println("ERROR:", err)
 		return false
 	}
 	return true

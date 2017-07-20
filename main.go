@@ -81,6 +81,8 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 				}
 			}
 			tmpPlug.notifChan = make(chan []byte)
+			tmpPlug.ID = p.ID()
+			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
 			go plugs[p.ID()].Handler()
 			// plugs[p.ID()].On()
@@ -111,9 +113,12 @@ func main() {
 	)
 	d.Init(onStateChanged)
 	
+	initSQL()
 	// Handle http
 	http.HandleFunc("/", checkSession)
 	http.HandleFunc("/signin", signin)
+	http.HandleFunc("/signup", signup)
+	http.HandleFunc("/home", home)
 	
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))

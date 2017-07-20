@@ -10,6 +10,9 @@ import (
 )
 
 type Plug struct {
+	ID string
+	Name string
+	State bool
 	per gatt.Peripheral
 	cmd *gatt.Characteristic
 	name *gatt.Characteristic

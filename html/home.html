@@ -1,0 +1,26 @@
+<html>
+  {{template "header.html" .}}
+  <body>
+    <div class="container">
+      <div>
+	<table class="table table-condensed table-bordered">
+	  <thead>
+	    <tr>
+	      <td>Plug</td>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {{range .Info}}
+	    <tr id="{{.ID}}" class="success">
+	      <td><a href="/plug/{{.ID}}">{{.Name}}</a></td>
+	    </tr>
+	    {{end}}
+	  </tbody>
+	</table>
+	<br>
+      </div>
+    </div>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+  </body>
+</html>
