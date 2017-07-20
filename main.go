@@ -110,5 +110,8 @@ func main() {
 	)
 	d.Init(onStateChanged)
 
-	select {}	
+	// Handle http
+	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
+	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
+	http.Handle("/fonts/", http.StripPrefix("/fonts/", http.FileServer(http.Dir("fonts"))))
 }
