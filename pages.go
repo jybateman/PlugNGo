@@ -1,8 +1,9 @@
 package main
 
-import (
-	"strings"
+ import (
+	"log"
 	"net/http"
+	"html/template"
 )
 
 type Page struct {
@@ -17,27 +18,30 @@ type HeaderMessage struct {
 	Message string
 }
 
-func checkSession(w http.ResponseWriter, r *http.Request) {
-	if !isSession(r) {
-		http.Redirect(w, r, "/signin", 302)		
+func signinPage(w http.ResponseWriter, r *http.Request, p *Page) {
+	tpl, err := template.ParseFiles("html/signin.html", "html/header.html")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
 	}
+	err = r.ParseForm()
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
+	}
+	tpl.Execute(w, p)
 }
 
-func signin(w http.ResponseWriter, r *http.Request) {
-	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil}
-	if isSession(r) {
-		http.Redirect(w, r, "/home", 302)
+func signupPage(w http.ResponseWriter, r *http.Request, p *Page) {
+	tpl, err := template.ParseFiles("html/signup.html", "html/header.html")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
 	}
-	r.ParseForm()
-	if checkPost(r.PostForm, "username", "password") {
-	user := strings.TrimSpace(r.PostFormValue("username"))
-		pass := strings.TrimSpace(r.PostFormValue("password"))
-		if checkAccount(user, pass) {
-			addSession(w)
-			http.Redirect(w, r, "/home", 302)
-		}
-		p.Mess.Type = "Warning"
-		p.Mess.Message = "Wrong Username/Password"
-		p.Mess.Visible = ""
+	err = r.ParseForm()
+	if err != nil {
+		log.Println("ERROR:", err)
+		return
 	}
+	tpl.Execute(w, p)
 }
