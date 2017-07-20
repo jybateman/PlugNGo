@@ -1,0 +1,17 @@
+.login-form {
+    margin: 45px auto;
+    background-color: #FFFFFF;
+    max-width: 360px;
+    padding: 45px;
+}
+
+.login-form input {
+    width: 100%;
+    margin: 0 0 15px;
+    padding: 15px;
+    outline: 0;
+}
+
+.login-form button {
+    width: 100%
+}

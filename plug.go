@@ -50,14 +50,36 @@ func (pl *Plug) Status() {
 	pl.SendMessage(b)
 }
 
+func (pl *Plug) SetName(name string) {
+	
+}
+
+func (pl *Plug) Test() {
+	b := CreateMessage([]byte{0x0a, 0x00, 0x00, 0x00, 0x00})
+	pl.SendMessage(b)
+}
+
+// HANDLERS
+
 func (pl *Plug) HandleStatus(data []byte) {
 	if len(data) < 11 {
-		log.Println("ERROR: Couldn't retreive power usage")
+		log.Println("ERROR: Couldn't retrieve power usage")
 		return
 	}
 	power := binary.BigEndian.Uint32(data[6:])
 	voltage := data[10]
 	log.Println("power:", power, "Voltage:", voltage)
+}
+
+func (pl *Plug) HandleDayHist(data []byte) {
+	if len(data) < 4 {
+		log.Println("ERROR: Couldn't retrieve power history")
+		return
+	}
+
+	for i := 2; i + 2 <= len(data); i = i + 2 {
+		log.Println(binary.BigEndian.Uint16(data[i:i+2]))
+	}
 }
 
 func (pl *Plug) Handler() {
@@ -79,6 +101,7 @@ func (pl *Plug) Handler() {
 			break
 		case bytes.HasPrefix(data, PowerDayHistory):
 			log.Println("Power History for last 24h Notification")
+			pl.HandleDayHist(data)
 			break
 		case bytes.HasPrefix(data, PowerPerDay):
 			log.Println("Power history kWh/day Notification")

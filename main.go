@@ -63,11 +63,8 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					log.Println("Notif Characteristic Found")
 					_, err := p.DiscoverDescriptors(nil, c)
 					if err != nil {
-						log.Println(err)
+						log.Println("ERROR:", err)
 					}
-					// f := func(c *gatt.Characteristic, b []byte, err error) {
-					// 	fmt.Printf("notified: % X | %q\n", b, b)
-					// }
 					if err := p.SetNotifyValue(c, tmpPlug.handleNotification); err != nil {
 						log.Println("ERROR:", err)
 					}
@@ -75,7 +72,6 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 				} else if (c.UUID().Equal(cmdUUID)) {
 					log.Println("Command Characteristic Found")
 					tmpPlug.cmd = c
-
 				} else if (c.UUID().Equal(nameUUID)) {
 					log.Println("Name Characteristic Found")
 					b, _ := p.ReadCharacteristic(c)
