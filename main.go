@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"golang.org/x/net/websocket"
-	
-	"github.com/paypal/gatt"
+
+	// "github.com/paypal/gatt"
+	"github.com/currantlabs/gatt"
 )
 
 var svcUUID = gatt.MustParseUUID("fff0")
@@ -18,6 +19,7 @@ var nameUUID = gatt.MustParseUUID("fff6")
 var plugs map[string]*Plug
 
 var DefaultClientOptions = []gatt.Option{
+	gatt.LnxMaxConnections(1),
 	gatt.LnxDeviceID(-1, true),
 }
 
@@ -50,26 +52,27 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 		log.Println("ERROR:", err)
 		return
 	}
-	
 	for _, service := range services {
 		if (service.UUID().Equal(svcUUID)) {
 			log.Printf("Service Found %s\n", service.Name())
 
 			cs, _ := p.DiscoverCharacteristics(nil, service)
-			
+
 			var tmpPlug Plug
-			
+
 			tmpPlug.per = p
 			for _, c := range cs {
-				
+
 				if (c.UUID().Equal(notifUUID)) {
 					log.Println("Notif Characteristic Found")
 					_, err := p.DiscoverDescriptors(nil, c)
 					if err != nil {
 						log.Println("ERROR:", err)
+						return
 					}
 					if err := p.SetNotifyValue(c, tmpPlug.handleNotification); err != nil {
 						log.Println("ERROR:", err)
+						return
 					}
 					tmpPlug.notif = c
 				} else if (c.UUID().Equal(cmdUUID)) {
@@ -82,17 +85,30 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					tmpPlug.name = c
 				}
 			}
+			if tmpPlug.cmd == nil || tmpPlug.name == nil || tmpPlug.notif == nil {
+				return
+			}
 			tmpPlug.notifChan = make(chan []byte)
 			tmpPlug.ID = p.ID()
 			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
-			go plugs[p.ID()].Handler()
-			// plugs[p.ID()].On()
+			// go plugs[p.ID()].MonitorState()
+			// go plugs[p.ID()].Handler()
+			// go plugs[p.ID()].Off()
 			// time.Sleep(time.Second * 5)
 			// plugs[p.ID()].Status()
 			break
 		}
 	}
+}
+
+func onPeriphDisconnected(p gatt.Peripheral, err error) {
+	_, ok := plugs[p.ID()]
+	if ok {
+		delete(plugs, p.ID())
+		p.Device().Connect(p)
+	}
+	log.Println("Disconnected", p.Name(), err)
 }
 
 func Notifytest(c *gatt.Characteristic, b []byte, err error) {
@@ -101,7 +117,7 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 
 func main() {
 	plugs = make(map[string]*Plug)
-	
+
 	d, err := gatt.NewDevice(DefaultClientOptions...)
 	if err != nil {
 		log.Fatalf("Failed to open device, err: %s\n", err)
@@ -112,19 +128,19 @@ func main() {
 	d.Handle(
 		gatt.PeripheralDiscovered(onPeriphDiscovered),
 		gatt.PeripheralConnected(onPeriphConnected),
-		// gatt.PeripheralDisconnected(onPeriphDisconnected),
+		gatt.PeripheralDisconnected(onPeriphDisconnected),
 	)
 	d.Init(onStateChanged)
-	
+
 	initSQL()
 	// Handle http
 	http.HandleFunc("/", checkSession)
 	http.HandleFunc("/signin", signin)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/home", home)
-	
+
 	http.Handle("/ws", websocket.Handler(handleWS))
-	
+
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
 	http.Handle("/fonts/", http.StripPrefix("/fonts/", http.FileServer(http.Dir("fonts"))))

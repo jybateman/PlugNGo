@@ -13,12 +13,18 @@ func handleWS(ws *websocket.Conn) {
 	for {
 		_, err := ws.Read(buf)
 		// plugs.
-		if err != nil {			
+		if err != nil {
 			log.Println("ERROR:", err)
 			ws.Close()
 			return
 		}
-		arr := explodeString(string(buf))
-		go plugs[arr[1]].Status()
+		arr := explodeRequest(string(buf))
+		if plugs[arr[1]].State > 0 {
+			go plugs[arr[1]].Off()
+		} else {
+			go plugs[arr[1]].On()
+		}
+		ws.Write([]byte(implodeRequest([]string{"0", "0"})))
+		log.Println("Message sent", implodeRequest([]string{"0", "0"}))
 	}
 }
