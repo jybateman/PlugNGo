@@ -40,7 +40,6 @@ func signin(w http.ResponseWriter, r *http.Request) {
 	signinPage(w, r, p)
 }
 
-
 func signup(w http.ResponseWriter, r *http.Request) {
 	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil}
 	if isSession(r) {

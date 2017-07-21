@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"golang.org/x/net/websocket"
 	
 	"github.com/paypal/gatt"
 )
@@ -86,7 +88,8 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			plugs[p.ID()] = &tmpPlug
 			go plugs[p.ID()].Handler()
 			// plugs[p.ID()].On()
-			plugs[p.ID()].Status()
+			// time.Sleep(time.Second * 5)
+			// plugs[p.ID()].Status()
 			break
 		}
 	}
@@ -119,6 +122,8 @@ func main() {
 	http.HandleFunc("/signin", signin)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/home", home)
+	
+	http.Handle("/ws", websocket.Handler(handleWS))
 	
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))

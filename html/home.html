@@ -7,12 +7,14 @@
 	  <thead>
 	    <tr>
 	      <td>Plug</td>
+	      <td>Action</td>
 	    </tr>
 	  </thead>
 	  <tbody>
 	    {{range .Info}}
 	    <tr id="{{.ID}}" class="success">
 	      <td><a href="/plug/{{.ID}}">{{.Name}}</a></td>
+	      <td><button onclick="ChangeState({{.ID}})" class="btn btn-primary"><span class="glyphicon glyphicon-off"></span></button></td>
 	    </tr>
 	    {{end}}
 	  </tbody>
@@ -22,5 +24,6 @@
     </div>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/script.js"></script>
   </body>
 </html>

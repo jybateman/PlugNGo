@@ -86,37 +86,40 @@ func (pl *Plug) HandleDayHist(data []byte) {
 }
 
 func (pl *Plug) Handler() {
-	select {
-	case data := <- pl.notifChan:
-		switch {
-		case bytes.HasPrefix(data, TimeConfirm):
-			log.Println("Set Time Notification")
-			break
-		case bytes.HasPrefix(data, NameConfirm):
-			log.Println("Set Name Notification")
-			break
-		case bytes.HasPrefix(data, StateConfirm):
-			log.Println("State Change Notification")
-			break
-		case bytes.HasPrefix(data, StatePowerNotif):
-			log.Println("State and Power Notification")
-			pl.HandleStatus(data)
-			break
-		case bytes.HasPrefix(data, PowerDayHistory):
-			log.Println("Power History for last 24h Notification")
-			pl.HandleDayHist(data)
-			break
-		case bytes.HasPrefix(data, PowerPerDay):
-			log.Println("Power history kWh/day Notification")
-			break
-		case bytes.HasPrefix(data, ScheduleNotif):
-			log.Println("Schedules Notification")
-			break
-		case bytes.HasPrefix(data, Notif):
-			log.Println("Notification")
-			break
-		default:
-			log.Println("Unknown Notification")
+	defer log.Println("Good Night")
+	for {
+		select {
+		case data := <- pl.notifChan:
+			switch {
+			case bytes.HasPrefix(data, TimeConfirm):
+				log.Println("Set Time Notification")
+				break
+			case bytes.HasPrefix(data, NameConfirm):
+				log.Println("Set Name Notification")
+				break
+			case bytes.HasPrefix(data, StateConfirm):
+				log.Println("State Change Notification")
+				break
+			case bytes.HasPrefix(data, StatePowerNotif):
+				log.Println("State and Power Notification")
+				pl.HandleStatus(data)
+				break
+			case bytes.HasPrefix(data, PowerDayHistory):
+				log.Println("Power History for last 24h Notification")
+				pl.HandleDayHist(data)
+				break
+			case bytes.HasPrefix(data, PowerPerDay):
+				log.Println("Power history kWh/day Notification")
+				break
+			case bytes.HasPrefix(data, ScheduleNotif):
+				log.Println("Schedules Notification")
+				break
+			case bytes.HasPrefix(data, Notif):
+				log.Println("Notification")
+				break
+			default:
+				log.Println("Unknown Notification")
+			}
 		}
 	}
 }
