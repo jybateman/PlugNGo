@@ -2,9 +2,10 @@ package main
 
 import (
 	"log"
+	"time"
 	"io/ioutil"
 	"encoding/json"
-	
+
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -94,4 +95,21 @@ func hasAdmin() bool {
 		return false
 	}
 	return true
+}
+
+func storeDatum(id string, power uint32, voltage byte) error {
+	db, err := sql.Open("mysql",
+		SQLConn.Username+":"+SQLConn.Password+"@tcp("+SQLConn.IP+":"+SQLConn.Port+")/plugngo")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec("INSERT INTO status (id, power, voltage, date) VALUE (?, ?, ?, ?)",
+		id, power, voltage, time.Now().String())
+	if err != nil {
+		log.Println("ERROR:", err)
+		return err
+	}
+	return nil
 }

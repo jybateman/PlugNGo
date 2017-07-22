@@ -103,6 +103,7 @@ func (pl *Plug) HandleStatus(data []byte) {
 	pl.State = data[4]
 	power := binary.BigEndian.Uint32(data[6:])
 	voltage := data[10]
+	storeDatum(pl.ID, power, voltage)
 	log.Println("Full notification:", data)
 	log.Println("power:", power, "Voltage:", voltage, "State:", data[4])
 }
