@@ -20,14 +20,20 @@ type Plug struct {
 	name *gatt.Characteristic
 	notif *gatt.Characteristic
 	notifChan chan []byte
+	quit chan bool
 }
 
 var message []byte
 
+
 func (pl *Plug) MonitorState() {
 	for {
-		pl.Status()
-		time.Sleep(2 * time.Second)
+		select {
+		case <- pl.quit:
+			return
+		case <- time.After(time.Second * 2):
+			pl.Status()
+		}
 	}
 }
 
@@ -58,6 +64,7 @@ func (pl *Plug) On() {
 	log.Println("Sending On request")
 	pl.SendMessage(b)
 	log.Println("Sent On request")
+	pl.State = 1
 }
 
 func (pl *Plug) Off() {
@@ -66,6 +73,7 @@ func (pl *Plug) Off() {
 	log.Println("Sending Off request")
 	pl.SendMessage(b)
 	log.Println("Sent Off request")
+	pl.State = 0
 }
 
 func (pl *Plug) Status() {

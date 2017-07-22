@@ -12,9 +12,9 @@
 	  </thead>
 	  <tbody>
 	    {{range .Info}}
-	    <tr id="{{.ID}}" class="success">
+	    <tr id="{{.ID}}" data-toggle="tooltip" title="ON" class="success">
 	      <td><a href="/plug/{{.ID}}">{{.Name}}</a></td>
-	      <td><button id="btn-{{.ID}}" onclick="ChangeState({{.ID}})" class="btn btn-primary"><span class="glyphicon glyphicon-off"></span></button></td>
+	      <td><button id="btn-{{.ID}}" onclick="SendChangeState({{.ID}})" class="btn btn-primary"><span class="glyphicon glyphicon-off"></span></button></td>
 	    </tr>
 	    {{end}}
 	  </tbody>

@@ -5,7 +5,7 @@ function implodeRequest(req) {
     for (i = 0; i < req.length; i++) {
 	sreq += req[i].length+":"+req[i]
     }
-    console.log(sreq)
+    // console.log(sreq)
     return sreq
 }
 
@@ -24,7 +24,7 @@ function explodeRequest(sreq) {
     return req
 }
 
-function ChangeState(id) {
+function SendChangeState(id) {
     var req = []
     req.push("0")
     req.push(id)
@@ -36,6 +36,15 @@ function ChangeState(id) {
     }, 2000);
 }
 
+function ChangeState(id, state) {
+    if (parseInt(state) > 0) {
+	document.getElementById(id).className = "Success"
+	document.getElementById(id).title = "ON"
+    } else {
+	document.getElementById(id).className = "Danger"
+	document.getElementById(id).title = "OFF"
+    }
+}
 
 var ip = location.host;
 var path = window.location.pathname;
@@ -44,6 +53,11 @@ var id = path.split("/");
 var ws = new WebSocket("ws://"+ip+"/ws")
 ws.onmessage = function (event) {
     if (event.data != "") {
-	explodeRequest(event.data)
+	arr = explodeRequest(event.data)
+	console.log(arr)
+	switch (arr[0]) {
+	case "0":
+	    ChangeState(arr[1], arr[2])
+	}
     }
 }

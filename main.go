@@ -89,14 +89,12 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 				return
 			}
 			tmpPlug.notifChan = make(chan []byte)
+			tmpPlug.quit = make(chan bool)
 			tmpPlug.ID = p.ID()
 			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
-			// go plugs[p.ID()].MonitorState()
+			go plugs[p.ID()].MonitorState()
 			// go plugs[p.ID()].Handler()
-			// go plugs[p.ID()].Off()
-			// time.Sleep(time.Second * 5)
-			// plugs[p.ID()].Status()
 			break
 		}
 	}
@@ -105,6 +103,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 func onPeriphDisconnected(p gatt.Peripheral, err error) {
 	_, ok := plugs[p.ID()]
 	if ok {
+		plugs[p.ID()].quit <- true
 		delete(plugs, p.ID())
 		p.Device().Connect(p)
 	}
