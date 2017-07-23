@@ -88,6 +88,14 @@ func (pl *Plug) SetName(name string) {
 
 }
 
+func (pl *Plug) GetSchedule() {
+	log.Println("Creating request message")
+	b := CreateMessage([]byte{0x07, 0x00, 0x00, 0x00, 0x00})
+	log.Println("Sending GetSchedule request")
+	pl.SendMessage(b)
+	log.Println("Sent GetSchedule request")
+}
+
 func (pl *Plug) Test() {
 	b := CreateMessage([]byte{0x0a, 0x00, 0x00, 0x00, 0x00})
 	pl.SendMessage(b)
@@ -157,7 +165,6 @@ func (pl *Plug) Handler() {
 		}
 	}
 }
-
 
 func (pl *Plug) HandlerNotification() {
 	defer log.Println("Good Night")

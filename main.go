@@ -93,7 +93,9 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			tmpPlug.ID = p.ID()
 			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
-			go plugs[p.ID()].MonitorState()
+
+			go plugs[p.ID()].GetSchedule()
+			// go plugs[p.ID()].MonitorState()
 			// go plugs[p.ID()].Handler()
 			break
 		}
