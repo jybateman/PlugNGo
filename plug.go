@@ -41,9 +41,11 @@ func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) 
 	if bytes.HasPrefix(b, StartMessage) {
 		message = b
 	} else if bytes.HasSuffix(b, EndMessage) {
-		message = append(message, b)
+		message = append(message, b...)
+		log.Println("Sent notification to handler", message)
+		pl.notifChan <- message
 	} else {
-		pl.notifChan <- b
+		message = append(message, b...)
 	}
 }
 
