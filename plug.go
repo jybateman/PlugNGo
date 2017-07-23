@@ -25,7 +25,6 @@ type Plug struct {
 
 var message []byte
 
-
 func (pl *Plug) MonitorState() {
 	for {
 		select {
@@ -39,7 +38,13 @@ func (pl *Plug) MonitorState() {
 
 func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) {
 	log.Println("Receive notification:", hex.EncodeToString(b))
-	pl.notifChan <- b
+	if bytes.HasPrefix(b, StartMessage) {
+		message = b
+	} else if bytes.HasSuffix(b, EndMessage) {
+		message = append(message, b)
+	} else {
+		pl.notifChan <- b
+	}
 }
 
 func (pl *Plug) SendMessage(b []byte) {
