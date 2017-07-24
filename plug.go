@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 	"bytes"
+	"strconv"
 	"encoding/hex"
 	"encoding/binary"
 
@@ -11,10 +12,17 @@ import (
 	"github.com/currantlabs/gatt"
 )
 
+type Schedule struct {
+	Name string
+	StartHour, StartMinute string
+	EndHour, EndMinute string
+}
+
 type Plug struct {
 	ID string
 	Name string
 	State byte
+	Schedules []Schedule
 	per gatt.Peripheral
 	cmd *gatt.Characteristic
 	name *gatt.Characteristic
@@ -134,6 +142,22 @@ func (pl *Plug) HandleDayHist(data []byte) {
 	}
 }
 
+func (pl *Plug) HandleSchedule(data []byte) {
+	if len(data) < 4 {
+		log.Println("ERROR: Couldn't retrieve schedule")
+		return
+	}
+	for offset := 4; offset + 21 < len(data); offset += 22 {
+		var tmpSched Schedule
+		tmpSched.Name = string(data[offset+1:offset+16])
+		tmpSched.StartHour = strconv.Itoa(int(data[offset+18]))
+		tmpSched.StartMinute = strconv.Itoa(int(data[offset+19]))
+		tmpSched.EndHour = strconv.Itoa(int(data[offset+20]))
+		tmpSched.EndMinute = strconv.Itoa(int(data[offset+21]))
+		pl.Schedules = append(pl.Schedules, tmpSched)
+	}
+}
+
 func (pl *Plug) Handler() {
 	defer log.Println("Good Night")
 	for {
@@ -201,6 +225,7 @@ func (pl *Plug) HandlerNotification() {
 			break
 		case bytes.HasPrefix(data, ScheduleNotif):
 			log.Println("Schedules Notification")
+			pl.HandleSchedule(data)
 			break
 		case bytes.HasPrefix(data, Notif):
 			log.Println("Notification")
