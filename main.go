@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -19,9 +20,10 @@ var nameUUID = gatt.MustParseUUID("fff6")
 var plugs map[string]*Plug
 
 var DefaultClientOptions = []gatt.Option{
-	gatt.LnxMaxConnections(1),
 	gatt.LnxDeviceID(-1, true),
 }
+
+var device gatt.Device
 
 func onStateChanged(d gatt.Device, s gatt.State) {
 	log.Println("State:", s)
@@ -94,8 +96,21 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
 
-			go plugs[p.ID()].GetSchedule()
+			// TEST
+			// var sch Schedule
+			// sch.Name = "hello"
+			// sch.StartHour = "1"
+			// sch.StartMinute = "30"
+			// sch.EndHour = "10"
+			// sch.EndMinute = "25"
+			// plugs[p.ID()].SetSchedule(sch)
+			// time.Sleep(5*time.Second)
+			// go plugs[p.ID()].Status()
+			// END TEST
+
+			// UNCOMMENT MonitorState
 			// go plugs[p.ID()].MonitorState()
+			// DON'T UNCOMMENT Handler
 			// go plugs[p.ID()].Handler()
 			break
 		}
@@ -116,22 +131,26 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 	fmt.Println(b);
 }
 
-func main() {
+func initDevice() {
+	var err error
 	plugs = make(map[string]*Plug)
 
-	d, err := gatt.NewDevice(DefaultClientOptions...)
+	device, err = gatt.NewDevice(DefaultClientOptions...)
 	if err != nil {
 		log.Fatalf("Failed to open device, err: %s\n", err)
 		return
 	}
-
 	// Register handlers.
-	d.Handle(
+	device.Handle(
 		gatt.PeripheralDiscovered(onPeriphDiscovered),
 		gatt.PeripheralConnected(onPeriphConnected),
 		gatt.PeripheralDisconnected(onPeriphDisconnected),
 	)
-	d.Init(onStateChanged)
+	device.Init(onStateChanged)
+}
+
+func main() {
+	initDevice()
 
 	initSQL()
 	// Handle http

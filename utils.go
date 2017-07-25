@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"log"
 	"fmt"
 	"bytes"
 	"net/url"
@@ -63,7 +64,7 @@ func explodeRequest(str string) []string {
 	for i := 0; i < len(str) && str[i] != 0x03; {
 		i2 := strings.Index(str[i:], ":")
 		if i2 == -1 {
-			fmt.Println("error", i, str[i:], len(str))
+			log.Println("ERROR", i, str[i:], len(str))
 			break
 		}
 		i2 += i

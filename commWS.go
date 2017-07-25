@@ -8,15 +8,16 @@ import (
 )
 
 func ChangeState(req []string, ws *websocket.Conn) {
-	if len(req) > 1 {
-		if plugs[req[1]].State > 0 {
-			go plugs[req[1]].Off()
+	pl, ok := plugs[req[1]]
+	if len(req) > 1 && ok {
+		if pl.State > 0 {
+			go pl.Off()
 		} else {
-			go plugs[req[1]].On()
+			go pl.On()
 		}
 		time.Sleep(time.Second * 2)
-		ws.Write([]byte(implodeRequest([]string{"0", req[1], string(plugs[req[1]].State+48)})))
-		log.Println("Message sent", implodeRequest([]string{"0", req[1], string(plugs[req[1]].State+48)}))
+		ws.Write([]byte(implodeRequest([]string{"0", req[1], string(pl.State+48)})))
+		log.Println("Message sent", implodeRequest([]string{"0", req[1], string(pl.State+48)}))
 	}
 }
 

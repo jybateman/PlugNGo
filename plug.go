@@ -16,6 +16,7 @@ type Schedule struct {
 	Name string
 	StartHour, StartMinute string
 	EndHour, EndMinute string
+	Flag byte
 }
 
 type Plug struct {
@@ -58,20 +59,31 @@ func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) 
 }
 
 func (pl *Plug) SendMessage(b []byte) {
-	for i := 0; i < len(b); i += 20 {
-		end := i + 20
-		if end > len(b) {
+	log.Println("Going to write message:", hex.EncodeToString(b))
+
+	// err := pl.per.WriteCharacteristic(pl.cmd, b, true)
+	// log.Println("Wrote block of message length:", len(b))
+	// if err != nil {
+	//	log.Println("ERROR:", err)
+	// }
+	// pl.HandlerNotification()
+
+	for i, end := 0, 0; i < len(b); i = end {
+		end = i + 20
+		if end >= len(b) {
 			end = len(b)
 		}
-		log.Println("Going to write message")
 		err := pl.per.WriteCharacteristic(pl.cmd, b[i:end], true)
+		log.Println("Wrote block of message length:", len(b[i:end]), hex.EncodeToString(b[i:end]))
 		if err != nil {
 			log.Println("ERROR:", err)
 		}
-		log.Println("Wrote message")
 	}
+	log.Println("Wrote all message length:", len(b))
 	pl.HandlerNotification()
 }
+
+// Plug COMMANDS
 
 func (pl *Plug) On() {
 	log.Println("Creating request message")
@@ -109,6 +121,48 @@ func (pl *Plug) GetSchedule() {
 	log.Println("Sending GetSchedule request")
 	pl.SendMessage(b)
 	log.Println("Sent GetSchedule request")
+}
+
+func (pl *Plug) SetSchedule(sched Schedule) {
+	var bName []byte
+
+	pl.GetSchedule()
+	log.Println("Creating request message")
+	mes := []byte{0x06, 0x00, 0x01}
+	if len(sched.Name) > 16 {
+		bName = []byte(sched.Name[:16])
+	} else {
+		bName = []byte(sched.Name)
+		for len(bName) < 16 {
+			bName = append(bName, 0x00)
+		}
+	}
+	mes = append(mes, bName...)
+	mes = append(mes, 0x80)
+	bStartHour := -1
+	bStartMinute := -1
+	// TODO: if Atoi fail send message to client that SetSchedule has failed and don't send notification
+	if len(sched.StartHour) > 0 {
+		bStartHour, _ = strconv.Atoi(sched.StartHour)
+		bStartMinute, _ = strconv.Atoi(sched.StartMinute)
+	}
+
+	bEndHour := -1
+	bEndMinute := -1
+	// TODO: if Atoi fail send message to client that SetSchedule has failed and don't send notification
+	if len(sched.EndHour) > 0 {
+		bEndHour, _ = strconv.Atoi(sched.EndHour)
+		bEndMinute, _ = strconv.Atoi(sched.EndMinute)
+	}
+
+	mes = append(mes, byte(bStartHour), byte(bStartMinute), byte(bEndHour), byte(bEndMinute))
+	for len(mes) < 112 {
+		mes = append(mes, 0x00)
+	}
+	b := CreateMessage(mes)
+	log.Println("Sending SetSchedule request", b)
+	pl.SendMessage(b)
+	log.Println("Sent SetSchedule request")
 }
 
 func (pl *Plug) Test() {
@@ -149,13 +203,15 @@ func (pl *Plug) HandleSchedule(data []byte) {
 	}
 	for offset := 4; offset + 21 < len(data); offset += 22 {
 		var tmpSched Schedule
-		tmpSched.Name = string(data[offset+1:offset+16])
+		tmpSched.Name = string(data[offset+1:offset+17])
 		tmpSched.StartHour = strconv.Itoa(int(data[offset+18]))
 		tmpSched.StartMinute = strconv.Itoa(int(data[offset+19]))
 		tmpSched.EndHour = strconv.Itoa(int(data[offset+20]))
 		tmpSched.EndMinute = strconv.Itoa(int(data[offset+21]))
+		tmpSched.Flag = data[offset+17]
 		pl.Schedules = append(pl.Schedules, tmpSched)
 	}
+	log.Println("Received schedule:", pl.Schedules)
 }
 
 func (pl *Plug) Handler() {
