@@ -1,18 +1,19 @@
 package main
 
 import (
+	"log"
 	"strings"
 	"net/http"
 )
 
 func checkSession(w http.ResponseWriter, r *http.Request) {
 	if !isSession(r) {
-		http.Redirect(w, r, "/signin", 302)		
+		http.Redirect(w, r, "/signin", 302)
 	}
 }
 
 func signin(w http.ResponseWriter, r *http.Request) {
-	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil}
+	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil, nil}
 	if isSession(r) {
 		http.Redirect(w, r, "/home", 302)
 	}
@@ -41,7 +42,7 @@ func signin(w http.ResponseWriter, r *http.Request) {
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
-	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil}
+	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil, nil}
 	if isSession(r) {
 		http.Redirect(w, r, "/home", 302)
 	}
@@ -78,7 +79,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil}
+	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil, nil}
 	if !isSession(r) {
 		p.Mess.Type = "Warning"
 		p.Mess.Message = "Please signin using Admin account"
@@ -89,4 +90,36 @@ func home(w http.ResponseWriter, r *http.Request) {
 	p.Nav = true
 	p.Info = plugs
 	homePage(w, r, p)
+}
+
+func plug(w http.ResponseWriter, r *http.Request) {
+	p := &Page{HeaderMessage{Visible: "hidden"}, false, nil, nil}
+	if !isSession(r) {
+		p.Mess.Type = "Warning"
+		p.Mess.Message = "Please signin using Admin account"
+		p.Mess.Visible = ""
+		signinPage(w, r, p)
+		return
+	}
+	path := strings.SplitAfter(r.URL.Path, "/")
+	log.Println(len(path), path[2])
+	p.Nav = true
+	if len(path) < 3 {
+		p.Mess.Type = "Warning"
+		p.Mess.Message = "Unknown plug ID"
+		p.Mess.Visible = ""
+		homePage(w, r, p)
+		return
+	}
+	pl, ok := plugs[path[2]]
+	if !ok {
+		p.Mess.Type = "Danger"
+		p.Mess.Message = "Failed to retrieve plug information"
+		p.Mess.Visible = ""
+		homePage(w, r, p)
+		return
+	}
+	p.Info = plugs
+	p.Extra = pl
+	plugPage(w, r, p)
 }

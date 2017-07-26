@@ -113,3 +113,28 @@ func storeDatum(id string, power uint32, voltage byte) error {
 	}
 	return nil
 }
+
+func getData(id string) string {
+	var res string
+	db, err := sql.Open("mysql",
+		SQLConn.Username+":"+SQLConn.Password+"@tcp("+SQLConn.IP+":"+SQLConn.Port+")/plugngo")
+	if err != nil {
+		log.Println("ERROR:", err)
+		return ""
+	}
+	defer db.Close()
+	rows, err := db.Query("SELECT date, power, voltage FROM status WHERE id=? ORDER BY date DESC LIMIT 10",
+		id)
+	if err != nil {
+		log.Println("ERROR:", err)
+		return ""
+	}
+	for rows.Next() {
+		var date, power, voltage string
+		err = rows.Scan(&date, &power, &voltage)
+		res += date+","+power+","+voltage+"\n"
+		log.Println(date, power, voltage)
+	}
+	rows.Close()
+	return res
+}

@@ -1,4 +1,5 @@
-// 0 change/inform state on/off
+// "0" change/inform state on/off
+// "1" Receive Status information
 
 function implodeRequest(req) {
     var sreq = "";
@@ -24,6 +25,9 @@ function explodeRequest(sreq) {
     return req
 }
 
+// SEND AND RECEIVE STATE REQUEST
+// [0]: REQUEST ID
+// [1]: ID
 function SendChangeState(id) {
     var req = []
     req.push("0")
@@ -36,6 +40,9 @@ function SendChangeState(id) {
     }, 2000);
 }
 
+// [0]: REQUEST ID
+// [1]: ID
+// [2]: State
 function ChangeState(id, state) {
     if (parseInt(state) > 0) {
 	document.getElementById(id).className = "Success"
@@ -44,6 +51,36 @@ function ChangeState(id, state) {
 	document.getElementById(id).className = "Danger"
 	document.getElementById(id).title = "OFF"
     }
+}
+
+// SEND AND RECEIVE STATUS REQUEST
+// [0]: REQUEST ID
+function SendStatus(id) {
+    var req = []
+    req.push("1")
+    req.push(id)
+    sreq = implodeRequest(req)
+    ws.send(sreq)
+}
+
+function Status(statInfo) {
+    UpdateGraph(statInfo)
+}
+
+
+// WAIT FOR CONNECTION TO CONNECT
+function waitForSocketConnection(socket, callback){
+    setTimeout(
+	function () {
+	    if (socket.readyState === 1) {
+		if(callback != null){
+		    callback(path[2]);
+		}
+		return;
+	    } else {
+		waitForSocketConnection(socket, callback);
+	    }
+	}, 5); // wait 5 milisecond for the connection...
 }
 
 var ip = location.host;
@@ -58,6 +95,8 @@ ws.onmessage = function (event) {
 	switch (arr[0]) {
 	case "0":
 	    ChangeState(arr[1], arr[2])
+	case "1":
+	    Status(arr[1])
 	}
     }
 }

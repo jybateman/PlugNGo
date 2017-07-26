@@ -4,7 +4,7 @@
     <div class="container">
       <div class="alert alert-{{.Mess.Type}} {{.Mess.Visible}}" role="alert">{{.Mess.Message}}</div>
 
-      <form class="login-form well center-block" method="post" action="signin">
+      <form class="login-form well center-block" method="post" action="/signin">
 	<h3 style="text-align:center">Log in</h3>
 	<span>Username</span>
 	<input type="text" placeholder="username" name="username" class="form-control"/>
@@ -12,9 +12,9 @@
 	<input type="password" placeholder="password" name="password" class="form-control"/>
 	<button class="btn btn-primary" style="100%">login</button>
 	<br><br>
-	<a href="signup"><p style="text-align: center;" >Create account</p></a>
+	<a href="/signup"><p style="text-align: center;" >Create account</p></a>
       </form>
-      
+
       <script src="/js/jquery.min.js"></script>
       <script src="/js/bootstrap.min.js"></script>
     </div>

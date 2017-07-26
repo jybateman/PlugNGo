@@ -21,7 +21,23 @@ func ChangeState(req []string, ws *websocket.Conn) {
 	}
 }
 
+func Status(req []string, ws *websocket.Conn, quit chan bool) {
+	_, ok := plugs[req[1]]
+	if len(req) > 1 && ok {
+		for {
+			select {
+			case <- quit:
+				return
+			case <- time.After(time.Second * 2):
+				log.Println("Got:", getData(req[1]))
+				ws.Write([]byte(implodeRequest([]string{"1", getData(req[1])})))
+			}
+		}
+	}
+}
+
 func handleWS(ws *websocket.Conn) {
+	quit := make(chan bool)
 	buf := make([]byte, 512)
 	if !isSession(ws.Request()) {
 		return
@@ -31,6 +47,7 @@ func handleWS(ws *websocket.Conn) {
 		if err != nil {
 			log.Println("ERROR:", err)
 			ws.Close()
+			quit <- true
 			return
 		}
 		arr := explodeRequest(string(buf))
@@ -38,6 +55,9 @@ func handleWS(ws *websocket.Conn) {
 		case "0":
 			log.Println("WS received change state request")
 			go ChangeState(arr, ws)
+		case "1":
+			log.Println("WS received status request", arr)
+			go Status(arr, ws, quit)
 		}
 	}
 }

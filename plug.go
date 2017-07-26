@@ -49,12 +49,13 @@ func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) 
 	log.Println("Receive notification:", hex.EncodeToString(b))
 	if bytes.HasPrefix(b, StartMessage) {
 		message = b
-	} else if bytes.HasSuffix(b, EndMessage) {
-		message = append(message, b...)
-		log.Println("Sent notification to handler", message)
-		pl.notifChan <- message
 	} else {
 		message = append(message, b...)
+	}
+	if bytes.HasSuffix(b, EndMessage) {
+		log.Println("Sent notification to handler", message)
+		pl.notifChan <- message
+		message = []byte{0x00}
 	}
 }
 
@@ -289,6 +290,7 @@ func (pl *Plug) HandlerNotification() {
 		default:
 			log.Println("Unknown Notification")
 		}
+		break
 	case <- time.After(time.Second * 10):
 		log.Println("ERROR: Didn't receive notification")
 	}

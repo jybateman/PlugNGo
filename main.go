@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
+	// "time"
 	"net/http"
 
 	"golang.org/x/net/websocket"
@@ -96,6 +96,11 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
 
+			// UNCOMMENT MonitorState
+			go plugs[p.ID()].MonitorState()
+			// DON'T UNCOMMENT Handler
+			// go plugs[p.ID()].Handler()
+
 			// TEST
 			// var sch Schedule
 			// sch.Name = "hello"
@@ -105,13 +110,9 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			// sch.EndMinute = "25"
 			// plugs[p.ID()].SetSchedule(sch)
 			// time.Sleep(5*time.Second)
-			// go plugs[p.ID()].Status()
+			// go plugs[p.ID()].GetSchedule()
 			// END TEST
 
-			// UNCOMMENT MonitorState
-			// go plugs[p.ID()].MonitorState()
-			// DON'T UNCOMMENT Handler
-			// go plugs[p.ID()].Handler()
 			break
 		}
 	}
@@ -158,6 +159,7 @@ func main() {
 	http.HandleFunc("/signin", signin)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/home", home)
+	http.HandleFunc("/plug/", plug)
 
 	http.Handle("/ws", websocket.Handler(handleWS))
 
