@@ -10,6 +10,7 @@ func checkSession(w http.ResponseWriter, r *http.Request) {
 	if !isSession(r) {
 		http.Redirect(w, r, "/signin", 302)
 	}
+	http.Redirect(w, r, "/home", 302)
 }
 
 func signin(w http.ResponseWriter, r *http.Request) {

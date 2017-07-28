@@ -123,7 +123,7 @@ func getData(id string) string {
 		return ""
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT date, power, voltage FROM status WHERE id=? ORDER BY date DESC LIMIT 10",
+	rows, err := db.Query("SELECT date, power, voltage FROM status WHERE id=? AND date >= now() - INTERVAL 10 MINUTE ORDER BY date DESC ",
 		id)
 	if err != nil {
 		log.Println("ERROR:", err)
@@ -132,7 +132,8 @@ func getData(id string) string {
 	for rows.Next() {
 		var date, power, voltage string
 		err = rows.Scan(&date, &power, &voltage)
-		res += date+","+power+","+voltage+"\n"
+		//res += date+","+power+","+voltage+"\n"
+		res += date+","+power+"\n"
 		log.Println(date, power, voltage)
 	}
 	rows.Close()

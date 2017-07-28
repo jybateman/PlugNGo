@@ -85,6 +85,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 					b, _ := p.ReadCharacteristic(c)
 					log.Printf("Name: %q\n", b)
 					tmpPlug.name = c
+					tmpPlug.Name = string(b)
 				}
 			}
 			if tmpPlug.cmd == nil || tmpPlug.name == nil || tmpPlug.notif == nil {
@@ -93,7 +94,6 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			tmpPlug.notifChan = make(chan []byte)
 			tmpPlug.quit = make(chan bool)
 			tmpPlug.ID = p.ID()
-			tmpPlug.Name = p.Name()
 			plugs[p.ID()] = &tmpPlug
 
 			// UNCOMMENT MonitorState
@@ -102,6 +102,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			// go plugs[p.ID()].Handler()
 
 			// TEST
+			// plugs[p.ID()].SetName("HelloWorld")
 			// var sch Schedule
 			// sch.Name = "hello"
 			// sch.StartHour = "1"

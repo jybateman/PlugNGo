@@ -113,7 +113,25 @@ func (pl *Plug) Status() {
 }
 
 func (pl *Plug) SetName(name string) {
+	var bName []byte
 
+	log.Println("Creating request message")
+	mes := []byte{0x02, 0x00}
+	if len(name) > 20 {
+		bName = []byte(name[:20])
+	} else {
+		bName = []byte(name)
+		for len(bName) < 20 {
+			bName = append(bName, 0x00)
+		}
+	}
+	mes = append(mes, bName...)
+	b := CreateMessage(mes)
+	log.Println("Sending SetName request")
+	pl.SendMessage(b)
+	log.Println("Sent SetName request")
+	b, _ = pl.per.ReadCharacteristic(pl.name)
+	pl.Name = string(b)
 }
 
 func (pl *Plug) GetSchedule() {

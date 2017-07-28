@@ -2,9 +2,35 @@
   {{template "header.html" .}}
   <body>
     <div class="container">
-
+      <h1>{{.Extra.Name}}</h1>
+      <br>
+      <h2>Consumption Graph</h2>
       <div style="width:100%" id="graph-{{.Extra.ID}}">
       </div>
+
+      <div style="margin-left:auto" class='col-md-5'>
+	<div class="form-group">
+	  <div class='input-group date' id='datetimepicker6'>
+	    <input type='text' class="form-control" />
+	    <span class="input-group-addon">
+	      <span class="glyphicon glyphicon-calendar"></span>
+	    </span>
+	  </div>
+	</div>
+      </div>
+      <div class='col-md-5'>
+	<div class="form-group">
+	  <div class='input-group date' id='datetimepicker7'>
+	    <input type='text' class="form-control" />
+	    <span class="input-group-addon">
+	      <span class="glyphicon glyphicon-calendar"></span>
+	    </span>
+	  </div>
+	</div>
+      </div>
+
+      <br><br>
+      <h2>Schedules</h2>
     </div>
     <script src="/js/dygraph-combined.js"></script>
     <script src="/js/jquery.min.js"></script>
