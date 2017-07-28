@@ -221,14 +221,16 @@ func (pl *Plug) HandleSchedule(data []byte) {
 		return
 	}
 	for offset := 4; offset + 21 < len(data); offset += 22 {
-		var tmpSched Schedule
-		tmpSched.Name = string(data[offset+1:offset+17])
-		tmpSched.StartHour = strconv.Itoa(int(data[offset+18]))
-		tmpSched.StartMinute = strconv.Itoa(int(data[offset+19]))
-		tmpSched.EndHour = strconv.Itoa(int(data[offset+20]))
-		tmpSched.EndMinute = strconv.Itoa(int(data[offset+21]))
-		tmpSched.Flag = data[offset+17]
-		pl.Schedules = append(pl.Schedules, tmpSched)
+		if data[offset] > 0 {
+			var tmpSched Schedule
+			tmpSched.Name = string(data[offset+1:offset+17])
+			tmpSched.StartHour = strconv.Itoa(int(data[offset+18]))
+			tmpSched.StartMinute = strconv.Itoa(int(data[offset+19]))
+			tmpSched.EndHour = strconv.Itoa(int(data[offset+20]))
+			tmpSched.EndMinute = strconv.Itoa(int(data[offset+21]))
+			tmpSched.Flag = data[offset+17]
+			pl.Schedules = append(pl.Schedules, tmpSched)
+		}
 	}
 	log.Println("Received schedule:", pl.Schedules)
 }

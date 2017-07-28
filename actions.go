@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 	"strings"
 	"net/http"
 )
@@ -120,6 +121,8 @@ func plug(w http.ResponseWriter, r *http.Request) {
 		homePage(w, r, p)
 		return
 	}
+	go pl.GetSchedule()
+	time.Sleep(time.Millisecond*500)
 	p.Info = plugs
 	p.Extra = pl
 	plugPage(w, r, p)

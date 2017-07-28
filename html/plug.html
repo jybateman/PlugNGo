@@ -31,6 +31,26 @@
 
       <br><br>
       <h2>Schedules</h2>
+
+	<table class="table table-condensed table-bordered">
+	  <thead>
+	    <tr>
+	      <td>Name</td>
+	      <td>Start Time</td>
+	      <td>End Time</td>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {{range .Extra.Schedules}}
+	    <tr class="success">
+	      <td>{{.Name}}</td>
+	      <td>{{.StartHour}}:{{.StartMinute}}</td>
+	      <td>{{.EndHour}}:{{.EndMinute}}</td>
+	    </tr>
+	    {{end}}
+	  </tbody>
+	</table>
+
     </div>
     <script src="/js/dygraph-combined.js"></script>
     <script src="/js/jquery.min.js"></script>
