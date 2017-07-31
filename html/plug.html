@@ -2,7 +2,7 @@
   {{template "header.html" .}}
   <body>
     <div class="container">
-      <h1>{{.Extra.Name}}</h1>
+      <div><h1 style="display: inline-block;">{{.Extra.Name}}</h1>&nbsp;<span style="color:#337ab7;" class="glyphicon glyphicon-pencil"></span></div>
       <br>
       <h2>Consumption Graph</h2>
       <div style="width:100%" id="graph-{{.Extra.ID}}">
