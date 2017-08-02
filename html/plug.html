@@ -2,7 +2,13 @@
   {{template "header.html" .}}
   <body>
     <div class="container">
-      <div><h1 style="display: inline-block;">{{.Extra.Name}}</h1>&nbsp;<span style="color:#337ab7;" class="glyphicon glyphicon-pencil"></span></div>
+      <div><h1 style="display:inline-block;">{{.Extra.Name}}</h1>&nbsp;<span style="color:#337ab7;" class="glyphicon glyphicon-pencil"></span></div>
+      <div class="input-group col-lg-4">
+	<input id="name" maxlength="20" type="text" class="form-control" value="{{.Extra.Name}}">
+	<span class="input-group-btn">
+	  <button class="btn btn-primary" type="button" onclick="SendName({{.Extra.ID}}, document.getElementById('name').value)">Update</button>
+	</span>
+      </div><!-- /input-group -->
       <br>
       <h2>Consumption Graph</h2>
       <div style="width:100%" id="graph-{{.Extra.ID}}">

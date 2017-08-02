@@ -131,6 +131,7 @@ func (pl *Plug) SetName(name string) {
 	pl.SendMessage(b)
 	log.Println("Sent SetName request")
 	b, _ = pl.per.ReadCharacteristic(pl.name)
+	log.Println("Setting new name", string(b))
 	pl.Name = string(b)
 }
 

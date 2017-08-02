@@ -57,7 +57,10 @@ func handleWS(ws *websocket.Conn) {
 			go ChangeState(arr, ws)
 		case "1":
 			log.Println("WS received status request", arr)
-			go Status(arr, ws, quit)
+			// go Status(arr, ws, quit)
+		case "2":
+			log.Println("WS received change name  request", arr)
+			go plugs[arr[1]].SetName(arr[2])
 		}
 	}
 }

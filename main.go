@@ -97,7 +97,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			plugs[p.ID()] = &tmpPlug
 
 			// UNCOMMENT MonitorState
-			go plugs[p.ID()].MonitorState()
+			// go plugs[p.ID()].MonitorState()
 			// DON'T UNCOMMENT Handler
 			// go plugs[p.ID()].Handler()
 

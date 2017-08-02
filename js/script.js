@@ -1,5 +1,6 @@
 // "0" change/inform state on/off
 // "1" Receive Status information
+// "2" Receive change name information
 
 function implodeRequest(req) {
     var sreq = "";
@@ -67,6 +68,19 @@ function Status(statInfo) {
     UpdateGraph(statInfo)
 }
 
+// SEND AND RECEIVE CHANGE NAME REQUEST
+function SendName(id, name) {
+    var req = []
+    req.push("2")
+    req.push(id)
+    req.push(name)
+    sreq = implodeRequest(req)
+    ws.send(sreq)
+}
+
+function Name(name) {
+    console.log(name)
+}
 
 // WAIT FOR CONNECTION TO CONNECT
 function waitForSocketConnection(socket, callback){
@@ -97,6 +111,8 @@ ws.onmessage = function (event) {
 	    ChangeState(arr[1], arr[2])
 	case "1":
 	    Status(arr[1])
+	case "2":
+	    Name(arr[1])
 	}
     }
 }
