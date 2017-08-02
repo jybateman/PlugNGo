@@ -76,25 +76,13 @@ function SendName(id, name) {
     req.push(name)
     sreq = implodeRequest(req)
     ws.send(sreq)
+    document.getElementById('NameInput').style.display = "none"
+    document.getElementById('NameText').innerHTML = "<h1>".name."</h1>"
+    document.getElementById('NameText').removeAttribute("style")
 }
 
 function Name(name) {
     console.log(name)
-}
-
-// WAIT FOR CONNECTION TO CONNECT
-function waitForSocketConnection(socket, callback){
-    setTimeout(
-	function () {
-	    if (socket.readyState === 1) {
-		if(callback != null){
-		    callback(path[2]);
-		}
-		return;
-	    } else {
-		waitForSocketConnection(socket, callback);
-	    }
-	}, 5); // wait 5 milisecond for the connection...
 }
 
 var ip = location.host;
