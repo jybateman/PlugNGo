@@ -77,7 +77,7 @@ function SendName(id, name) {
     sreq = implodeRequest(req)
     ws.send(sreq)
     document.getElementById('NameInput').style.display = "none"
-    document.getElementById('NameText').innerHTML = "<h1>".name."</h1>"
+    document.getElementById('NameTextH1').innerHTML = name
     document.getElementById('NameText').removeAttribute("style")
 }
 
