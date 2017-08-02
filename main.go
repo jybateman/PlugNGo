@@ -133,6 +133,11 @@ func Notifytest(c *gatt.Characteristic, b []byte, err error) {
 	fmt.Println(b);
 }
 
+func ReConnect() {
+	log.Println(device.Stop())
+	device.Init(onStateChanged)
+}
+
 func initDevice() {
 	var err error
 	plugs = make(map[string]*Plug)

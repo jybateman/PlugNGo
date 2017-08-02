@@ -312,7 +312,11 @@ func (pl *Plug) HandlerNotification() {
 			log.Println("Unknown Notification")
 		}
 		break
-	case <- time.After(time.Second * 10):
+	case <- time.After(time.Second * 2):
 		log.Println("ERROR: Didn't receive notification")
+		pl.quit <- true
+		device.CancelConnection(pl.per)
+		device.Connect(pl.per)
+
 	}
 }
