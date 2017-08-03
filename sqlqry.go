@@ -114,8 +114,9 @@ func storeDatum(id string, power uint32, voltage byte) error {
 	return nil
 }
 
-func getData(id string) string {
+func getData(id, start, end string) string {
 	var res string
+	var rows *sql.Rows
 	db, err := sql.Open("mysql",
 		SQLConn.Username+":"+SQLConn.Password+"@tcp("+SQLConn.IP+":"+SQLConn.Port+")/plugngo")
 	if err != nil {
@@ -123,11 +124,20 @@ func getData(id string) string {
 		return ""
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT date, power, voltage FROM status WHERE id=? AND date >= now() - INTERVAL 10 MINUTE ORDER BY date DESC ",
-		id)
-	if err != nil {
-		log.Println("ERROR:", err)
-		return ""
+	if len(start) > 0 {
+		rows, err = db.Query("SELECT date, power, voltage FROM status WHERE id=? AND date >= ? AND date <= ? ORDER BY date DESC ",
+			id, start, end)
+		if err != nil {
+			log.Println("ERROR:", err)
+			return ""
+		}
+	} else {
+		rows, err = db.Query("SELECT date, power, voltage FROM status WHERE id=? AND date >= now() - INTERVAL 10 MINUTE ORDER BY date DESC ",
+			id)
+		if err != nil {
+			log.Println("ERROR:", err)
+			return ""
+		}
 	}
 	for rows.Next() {
 		var date, power, voltage string

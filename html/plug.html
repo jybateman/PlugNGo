@@ -18,7 +18,7 @@
       <div style="margin-left:auto" class='col-md-5'>
 	<div class="form-group">
 	  <div class='input-group date' id='datetimepicker6'>
-	    <input data-provide="datepicker" type='text' class="form-control" />
+	    <input id="StartDate" data-date-format="yyyy-mm-dd" data-provide="datepicker" type='text' class="form-control" />
 	    <span class="input-group-addon">
 	      <span class="glyphicon glyphicon-calendar"></span>
 	    </span>
@@ -28,7 +28,7 @@
       <div class='col-md-5'>
 	<div class="form-group">
 	  <div class='input-group date' id='datetimepicker7'>
-	    <input data-provide="datepicker" type='text' class="form-control" />
+	    <input id="EndDate" data-date-format="yyyy-mm-dd" data-provide="datepicker" type='text' class="form-control" />
 	    <span class="input-group-addon">
 	      <span class="glyphicon glyphicon-calendar"></span>
 	    </span>
@@ -36,8 +36,8 @@
 	</div>
       </div>
       <div class="btn-group" role="group" aria-label="...">
-	<button type="button" class="btn btn-primary">Request</button>
-	<button type="button" class="btn btn-danger">Live</button>
+	<button type="button" class="btn btn-primary" onclick="StatusRange({{.Extra.ID}})">Request</button>
+	<button type="button" class="btn btn-danger" onclick="SendStatus({{.Extra.ID}})">Live</button>
       </div>
 
       <br><br>

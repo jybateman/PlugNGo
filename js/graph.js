@@ -16,7 +16,7 @@ function UpdateGraph(statInfo) {
 var path = window.location.pathname.split("/")
 if (path.length >= 3) {
     var graph
-    console.log(path[2])
+    // console.log(path[2])
     CreateGraph(path[2])
     waitForSocketConnection(ws, SendStatus)
 }

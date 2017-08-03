@@ -60,7 +60,8 @@ function SendStatus(id) {
     var req = []
     req.push("1")
     req.push(id)
-    sreq = implodeRequest(req)
+    var sreq = implodeRequest(req)
+    console.log("Sending status request", sreq)
     ws.send(sreq)
 }
 
@@ -74,7 +75,7 @@ function SendName(id, name) {
     req.push("2")
     req.push(id)
     req.push(name)
-    sreq = implodeRequest(req)
+    var sreq = implodeRequest(req)
     ws.send(sreq)
     document.getElementById('NameInput').style.display = "none"
     document.getElementById('NameTextH1').innerHTML = name
@@ -93,14 +94,17 @@ var ws = new WebSocket("ws://"+ip+"/ws")
 ws.onmessage = function (event) {
     if (event.data != "") {
 	arr = explodeRequest(event.data)
-	console.log(arr)
+	// console.log(arr)
 	switch (arr[0]) {
 	case "0":
 	    ChangeState(arr[1], arr[2])
+	    break
 	case "1":
 	    Status(arr[1])
+	    break
 	case "2":
 	    Name(arr[1])
+	    break
 	}
     }
 }

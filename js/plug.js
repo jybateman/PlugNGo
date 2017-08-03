@@ -18,8 +18,14 @@ function ChangeInput() {
     document.getElementById('NameInput').removeAttribute("style")
 }
 
-function StatusRange() {
-
+function StatusRange(id) {
+    var req = []
+    req.push("1")
+    req.push(id)
+    req.push(document.getElementById('StartDate').value)
+    req.push(document.getElementById('EndDate').value)
+    var sreq = implodeRequest(req)
+    ws.send(sreq)
 }
 
 $('.datepicker').datepicker()

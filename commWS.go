@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"time"
+	"bytes"
 
 	"golang.org/x/net/websocket"
 )
@@ -24,17 +25,16 @@ func ChangeState(req []string, ws *websocket.Conn) {
 func Status(req []string, ws *websocket.Conn, quit chan bool) {
 	_, ok := plugs[req[1]]
 
-	// if len(req) > 3 && ok {
-
-	// } else
-	if len(req) > 1 && ok {
+	if len(req) > 3 && ok {
+		ws.Write([]byte(implodeRequest([]string{"1", getData(req[1], req[2], req[3])})))
+	} else if len(req) > 1 && ok {
 		for {
 			select {
 			case <- quit:
 				return
 			case <- time.After(time.Second * 2):
-				log.Println("Got:", getData(req[1]))
-				ws.Write([]byte(implodeRequest([]string{"1", getData(req[1])})))
+				// log.Println("Got:", getData(req[1]))
+				ws.Write([]byte(implodeRequest([]string{"1", getData(req[1], "", "")})))
 			}
 		}
 	}
@@ -47,6 +47,7 @@ func handleWS(ws *websocket.Conn) {
 		return
 	}
 	for {
+		buf = bytes.Repeat([]byte{0x03}, 512)
 		_, err := ws.Read(buf)
 		if err != nil {
 			log.Println("ERROR:", err)
@@ -64,6 +65,10 @@ func handleWS(ws *websocket.Conn) {
 			go ChangeState(arr, ws)
 		case "1":
 			log.Println("WS received status request", arr)
+			select {
+			case quit <- true:
+			default:
+			}
 			go Status(arr, ws, quit)
 		case "2":
 			log.Println("WS received change name  request", arr)
