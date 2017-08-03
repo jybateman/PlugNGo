@@ -97,7 +97,7 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 			plugs[p.ID()] = &tmpPlug
 
 			// UNCOMMENT MonitorState
-			// go plugs[p.ID()].MonitorState()
+			go plugs[p.ID()].MonitorState()
 			// DON'T UNCOMMENT Handler
 			// go plugs[p.ID()].Handler()
 
@@ -122,7 +122,10 @@ func onPeriphConnected(p gatt.Peripheral, err error) {
 func onPeriphDisconnected(p gatt.Peripheral, err error) {
 	_, ok := plugs[p.ID()]
 	if ok {
-		plugs[p.ID()].quit <- true
+		select {
+		case plugs[p.ID()].quit <- true:
+		default:
+		}
 		delete(plugs, p.ID())
 		p.Device().Connect(p)
 	}

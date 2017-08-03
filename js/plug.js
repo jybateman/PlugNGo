@@ -18,4 +18,8 @@ function ChangeInput() {
     document.getElementById('NameInput').removeAttribute("style")
 }
 
+function StatusRange() {
+
+}
+
 $('.datepicker').datepicker()

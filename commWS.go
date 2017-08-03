@@ -23,6 +23,10 @@ func ChangeState(req []string, ws *websocket.Conn) {
 
 func Status(req []string, ws *websocket.Conn, quit chan bool) {
 	_, ok := plugs[req[1]]
+
+	// if len(req) > 3 && ok {
+
+	// } else
 	if len(req) > 1 && ok {
 		for {
 			select {
@@ -47,7 +51,10 @@ func handleWS(ws *websocket.Conn) {
 		if err != nil {
 			log.Println("ERROR:", err)
 			ws.Close()
-			quit <- true
+			select {
+			case quit <- true:
+			default:
+			}
 			return
 		}
 		arr := explodeRequest(string(buf))
@@ -57,7 +64,7 @@ func handleWS(ws *websocket.Conn) {
 			go ChangeState(arr, ws)
 		case "1":
 			log.Println("WS received status request", arr)
-			// go Status(arr, ws, quit)
+			go Status(arr, ws, quit)
 		case "2":
 			log.Println("WS received change name  request", arr)
 			go plugs[arr[1]].SetName(arr[2])
