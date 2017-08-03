@@ -1,5 +1,6 @@
 <html>
   {{template "header.html" .}}
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap-datepicker3.min.css">
   <body>
     <div class="container">
       <div id="NameText"><h1 id="NameTextH1" style="display:inline-block;">{{.Extra.Name}}</h1>&nbsp;<span onclick="ChangeInput()" style="cursor: pointer;color:#337ab7;" class="glyphicon glyphicon-pencil"></span></div>
@@ -17,7 +18,7 @@
       <div style="margin-left:auto" class='col-md-5'>
 	<div class="form-group">
 	  <div class='input-group date' id='datetimepicker6'>
-	    <input type='text' class="form-control" />
+	    <input data-provide="datepicker" type='text' class="form-control" />
 	    <span class="input-group-addon">
 	      <span class="glyphicon glyphicon-calendar"></span>
 	    </span>
@@ -27,7 +28,7 @@
       <div class='col-md-5'>
 	<div class="form-group">
 	  <div class='input-group date' id='datetimepicker7'>
-	    <input type='text' class="form-control" />
+	    <input data-provide="datepicker" type='text' class="form-control" />
 	    <span class="input-group-addon">
 	      <span class="glyphicon glyphicon-calendar"></span>
 	    </span>
@@ -48,11 +49,13 @@
 	  </thead>
 	  <tbody>
 	    {{range .Extra.Schedules}}
+	    {{if gt .Flag 0}}
 	    <tr class="success">
 	      <td>{{.Name}}</td>
 	      <td>{{.StartHour}}:{{.StartMinute}}</td>
 	      <td>{{.EndHour}}:{{.EndMinute}}</td>
 	    </tr>
+	    {{end}}
 	    {{end}}
 	  </tbody>
 	</table>
@@ -61,6 +64,7 @@
     <script src="/js/dygraph-combined.js"></script>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-datepicker.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/plug.js"></script>
     <script src="/js/graph.js"></script>

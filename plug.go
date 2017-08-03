@@ -23,7 +23,7 @@ type Plug struct {
 	ID string
 	Name string
 	State byte
-	Schedules []Schedule
+	Schedules [5]Schedule
 	per gatt.Peripheral
 	cmd *gatt.Characteristic
 	name *gatt.Characteristic
@@ -61,14 +61,6 @@ func (pl *Plug) handleNotification(c *gatt.Characteristic, b []byte, err error) 
 
 func (pl *Plug) SendMessage(b []byte) {
 	log.Println("Going to write message:", hex.EncodeToString(b))
-
-	// err := pl.per.WriteCharacteristic(pl.cmd, b, true)
-	// log.Println("Wrote block of message length:", len(b))
-	// if err != nil {
-	//	log.Println("ERROR:", err)
-	// }
-	// pl.HandlerNotification()
-
 	for i, end := 0, 0; i < len(b); i = end {
 		end = i + 20
 		if end >= len(b) {
@@ -221,17 +213,15 @@ func (pl *Plug) HandleSchedule(data []byte) {
 		log.Println("ERROR: Couldn't retrieve schedule")
 		return
 	}
-	for offset := 4; offset + 21 < len(data); offset += 22 {
-		if data[offset] > 0 {
-			var tmpSched Schedule
-			tmpSched.Name = string(data[offset+1:offset+17])
-			tmpSched.StartHour = strconv.Itoa(int(data[offset+18]))
-			tmpSched.StartMinute = strconv.Itoa(int(data[offset+19]))
-			tmpSched.EndHour = strconv.Itoa(int(data[offset+20]))
-			tmpSched.EndMinute = strconv.Itoa(int(data[offset+21]))
-			tmpSched.Flag = data[offset+17]
-			pl.Schedules = append(pl.Schedules, tmpSched)
-		}
+	for idx, offset := 0, 4; offset + 21 < len(data); idx, offset = idx + 1, offset + 22 {
+		var tmpSched Schedule
+		tmpSched.Name = string(data[offset+1:offset+17])
+		tmpSched.StartHour = strconv.Itoa(int(data[offset+18]))
+		tmpSched.StartMinute = strconv.Itoa(int(data[offset+19]))
+		tmpSched.EndHour = strconv.Itoa(int(data[offset+20]))
+		tmpSched.EndMinute = strconv.Itoa(int(data[offset+21]))
+		tmpSched.Flag = data[offset+17]
+		pl.Schedules[idx] = tmpSched
 	}
 	log.Println("Received schedule:", pl.Schedules)
 }
